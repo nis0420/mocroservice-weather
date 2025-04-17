@@ -4,13 +4,15 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var app = builder.Build();
+
 
 builder.Services.AddDbContext<PrecipDbContext>(options => {
     options.EnableSensitiveDataLogging();
     options.EnableDetailedErrors();
     options.UseNpgsql(builder.Configuration.GetConnectionString("AppDb"));
 }, ServiceLifetime.Transient);
+
+var app = builder.Build();
 
 app.MapGet("/observation/{zip}", async (string zip, [FromQuery] int? days, PrecipDbContext db) => {
     if (days == null || days < 1 || days > 30)

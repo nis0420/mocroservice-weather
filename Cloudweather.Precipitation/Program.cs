@@ -49,4 +49,11 @@ app.MapGet("/observation/{zip}", async (string zip, [FromQuery] int? days, Preci
     return Results.Ok(observations);
 });
 
+app.MapPost("/observation", async (Precipitation observation, PrecipDbContext db) => {
+    observation.CreatedOn = observation.CreatedOn.ToUniversalTime();
+    await db.AddAsync(observation);
+    await db.SaveChangesAsync();
+    return Results.Created($"/observation/{observation.Id}", observation);
+});
+
 app.Run();

@@ -3,7 +3,7 @@ using Cloudweather.Report.BusinessLogic;
 using Microsoft.Extensions.Configuration;
 
 IConfiguration configuration = new ConfigurationBuilder()
-    .AddJsonFile("appsettings.json")
+    .AddJsonFile("appSettings.json")
     .AddEnvironmentVariables()
     .Build();
 

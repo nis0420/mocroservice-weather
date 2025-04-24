@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Cloudweather.Temperature.DataAccess;
+using Microsoft.Extensions.Options;
 
 namespace Cloudweather.Report.BusinessLogic;
 
@@ -15,11 +16,11 @@ public class WeatherReportAggregator : IWeatherReportAggregator
     private readonly WeatherDataConfig _weatherDataConfig;
     private readonly WeatherReportDbContext _db;
 
-    public WeatherReportAggregator(IHttpClientFactory http, ILogger<WeatherReportAggregator> logger, WeatherDataConfig weatherDataConfig, WeatherReportDbContext db)
+    public WeatherReportAggregator(IHttpClientFactory http, ILogger<WeatherReportAggregator> logger, IOptions<WeatherDataConfig> weatherDataOptions, WeatherReportDbContext db)
     {
         _http = http;
         _logger = logger;
-        _weatherDataConfig = weatherDataConfig;
+        _weatherDataConfig = weatherDataOptions.Value;
         _db = db;
     }
 
@@ -97,11 +98,11 @@ public class WeatherReportAggregator : IWeatherReportAggregator
 
     private string BuildTemperatureEndpoint(string zip, int days)
     {
-        return $"{_weatherDataConfig.TempDataProtocol}://{_weatherDataConfig.TempDataHost}:{_weatherDataConfig.TempDataPort}/api/temperature/{zip}/{days}";
+        return $"{_weatherDataConfig.TempDataProtocol}://{_weatherDataConfig.TempDataHost}:{_weatherDataConfig.TempDataPort}/observation/{zip}?days={days}";
     }
     private string BuildPrecipitationEndpoint(string zip, int days)
     {
-        return $"{_weatherDataConfig.PrecipDataProtocol}://{_weatherDataConfig.PrecipDataHost}:{_weatherDataConfig.PrecipDataPort}/api/precipitation/{zip}/{days}";
+        return $"{_weatherDataConfig.PrecipDataProtocol}://{_weatherDataConfig.PrecipDataHost}:{_weatherDataConfig.PrecipDataPort}/observation/{zip}?days={days}";
     }
 
 

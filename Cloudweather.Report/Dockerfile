@@ -1,23 +1,31 @@
-# Use .NET SDK image for build
+# -------------------------------
+# 1) Build stage: restore, build & publish
+# -------------------------------
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /source
+WORKDIR /src
 
-# Copy csproj and restore dependencies
+# Copy only the project file to leverage Docker cache
+COPY Cloudweather.Report.csproj ./
+RUN dotnet restore --disable-parallel
 
+# Copy all source code and publish the app
+COPY . ./
+RUN dotnet publish "Cloudweather.Report.csproj" \
+    -c Release \
+    -o /app/publish
 
-# Copy all source and publish
-COPY . .
-RUN dotnet restore "Cloudweather.Report.csproj" --disable-parallel
-RUN dotnet publish "Cloudweather.Report.csproj" -c Release -o /app/publish --no-restore
-
-# Use ASP.NET runtime image
+# -------------------------------
+# 2) Runtime stage: slim image with only runtime + published app
+# -------------------------------
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
-COPY --from=build /app ./
 
-# Expose ports and configure URL
+# Copy published output from build stage
+COPY --from=build /app/publish ./
+
+# Configure the app to listen on port 5000
+ENV ASPNETCORE_URLS=http://+:5000
 EXPOSE 5000
 
-# Copy published output and set entrypoint
-
+# Entry point to launch your app DLL
 ENTRYPOINT ["dotnet", "Cloudweather.Report.dll"]

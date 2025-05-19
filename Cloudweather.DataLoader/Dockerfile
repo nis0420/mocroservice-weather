@@ -10,7 +10,7 @@ RUN dotnet publish "Cloudweather.DataLoader.csproj" -c Release -o /app/publish -
 # Use ASP.NET runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
-COPY --from=build /app ./
+COPY --from=build /app/publish .
 
 # Copy published output and set entrypoint
 
